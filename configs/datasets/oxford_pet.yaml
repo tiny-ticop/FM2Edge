@@ -1,0 +1,8 @@
+# Disposable public-PoC dataset fragment. Oxford trimap: 1=pet, 2=background, 3=border.
+num_classes: 2
+ignore_index: 255
+image_size: [128, 128]
+mask_value_map:
+  1: 1
+  2: 0
+  3: 255

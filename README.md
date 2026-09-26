@@ -25,6 +25,18 @@ Teacher models, knowledge distillation, additional Students, domain
 augmentation, balanced sampling, HTML reports and SBC benchmarks belong to
 later phases.
 
+## Immediate Colab PoC with Oxford-IIIT Pet
+
+The disposable Oxford-IIIT Pet adapter can download the public segmentation
+dataset immediately and treat breed as a temporary domain proxy. It is isolated
+from the core/company pipeline and can be deleted later without changing
+training or evaluation code.
+
+See [docs/OXFORD_PET_POC.md](docs/OXFORD_PET_POC.md) for commands, label mapping,
+limitations, license notes, and the exact list of removable files. A runnable
+Colab workflow is provided at
+`notebooks/phase1_5_oxford_pet_colab.ipynb`.
+
 ## Setup
 
 Python 3.10+ is supported. In a fresh virtual environment or Colab runtime:

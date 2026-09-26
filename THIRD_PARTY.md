@@ -12,6 +12,7 @@ license for source code must not be assumed to cover weights or training data.
 | PIDNet source | https://github.com/XuJiacong/PIDNet | MIT | PIDNet-S architecture | `models/pidnet.py` is an adapted implementation. Keep attribution. |
 | PIDNet weights | Official repository download links | Verify per artifact | Optional initialization | Not bundled. Record URL and SHA-256 before use. Do not use Cityscapes segmentation weights in city-held-out experiments. |
 | Cityscapes data | https://www.cityscapes-dataset.com/ | Cityscapes terms; non-commercial | Home PoC only | Data is not bundled or redistributed. Do not carry dataset-derived artifacts into a commercial product without review. |
+| Oxford-IIIT Pet data | https://www.robots.ox.ac.uk/~vgg/data/pets/ | CC BY-SA 4.0; image copyrights remain with original owners | Disposable public PoC | Data is downloaded from the official host and is not bundled. Preserve attribution and review ShareAlike obligations before redistributing derivatives. |
 
 ## Planned, not yet included in Phase 1
 
@@ -23,4 +24,3 @@ license for source code must not be assumed to cover weights or training data.
 | DINOv3 | https://github.com/facebookresearch/dinov3 | Custom DINOv3 license and access agreement; company legal review required |
 
 This document is an engineering inventory, not legal advice.
-
