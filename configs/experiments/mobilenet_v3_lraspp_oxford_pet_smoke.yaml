@@ -1,0 +1,30 @@
+name: mobilenet_v3_lraspp_oxford_pet_smoke
+output_dir: results
+
+data:
+  root: data/oxford_pet
+  manifest: data/oxford_pet/manifest_smoke.csv
+  split: configs/splits/oxford_pet_smoke/fold_01.yaml
+  num_classes: 2
+  ignore_index: 255
+  image_size: [128, 128]
+  mask_value_map:
+    1: 1
+    2: 0
+    3: 255
+
+model:
+  name: mobilenet_v3_lraspp
+  pretrained: null
+
+train:
+  epochs: 3
+  batch_size: 8
+  num_workers: 2
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  dice_weight: 1.0
+  amp: true
+  seed: 42
+  device: auto
+  gradient_accumulation: 1

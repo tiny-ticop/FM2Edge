@@ -8,10 +8,12 @@ from pathlib import Path
 import torch
 from torch import nn
 
+from fm2edge.models.lraspp import MobileNetV3LRASPP
 from fm2edge.models.pidnet import PIDNetSmall
 from fm2edge.models.pp_liteseg import PPLiteSegSTDC1
 
 STUDENTS: dict[str, type[nn.Module]] = {
+    "mobilenet_v3_lraspp": MobileNetV3LRASPP,
     "pidnet_s": PIDNetSmall,
     "pp_liteseg_stdc1": PPLiteSegSTDC1,
 }

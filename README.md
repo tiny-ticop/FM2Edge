@@ -16,15 +16,15 @@ external layout -> canonical manifest -> machine-disjoint split
 - Reproducible train/validation/test machine folds
 - Official-structure PIDNet-S with a common model output
 - PyTorch PP-LiteSeg-STDC1 with the same model output contract
+- Dependency-free PyTorch MobileNetV3-Large + LR-ASPP with the same contract
 - Cross-entropy + Dice training objective
 - IoU, Dice, precision, recall, Boundary F1, confidence and entropy
 - Per-image, per-delay, per-machine CSV summaries
 - Best/worst/random prediction panels
 - Config, split, environment, checkpoints, history and metrics per run
 
-Teacher models, knowledge distillation, MobileNetV3 + LR-ASPP, domain
-augmentation, balanced sampling, HTML reports and SBC benchmarks belong to
-later phases.
+Teacher models, knowledge distillation, domain augmentation, balanced
+sampling, HTML reports and SBC benchmarks belong to later phases.
 
 ## Immediate Colab PoC with Oxford-IIIT Pet
 
@@ -77,6 +77,15 @@ python scripts/train.py \
   --config configs/experiments/pp_liteseg_stdc1_synthetic.yaml
 python scripts/evaluate.py \
   --config configs/experiments/pp_liteseg_stdc1_synthetic.yaml
+```
+
+MobileNetV3-Large + LR-ASPP can be checked without installing Torchvision:
+
+```bash
+python scripts/train.py \
+  --config configs/experiments/mobilenet_v3_lraspp_synthetic.yaml
+python scripts/evaluate.py \
+  --config configs/experiments/mobilenet_v3_lraspp_synthetic.yaml
 ```
 
 The test command is:

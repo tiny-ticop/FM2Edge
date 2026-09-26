@@ -20,6 +20,7 @@ def test_student_registry_reports_both_implemented_models() -> None:
     try:
         build_student("not_a_model", num_classes=2)
     except ValueError as error:
+        assert "mobilenet_v3_lraspp" in str(error)
         assert "pidnet_s" in str(error)
         assert "pp_liteseg_stdc1" in str(error)
     else:

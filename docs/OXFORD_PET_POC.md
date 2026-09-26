@@ -16,6 +16,7 @@ limited to:
 - `configs/datasets/oxford_pet.yaml`
 - `configs/experiments/pidnet_s_oxford_pet_smoke.yaml`
 - `configs/experiments/pp_liteseg_stdc1_oxford_pet_smoke.yaml`
+- `configs/experiments/mobilenet_v3_lraspp_oxford_pet_smoke.yaml`
 - `notebooks/phase1_5_oxford_pet_colab.ipynb`
 - `tests/test_oxford_pet.py`
 - this document and its `THIRD_PARTY.md` row
@@ -81,6 +82,19 @@ python scripts/evaluate.py \
 This comparison configuration starts from scratch. Official PaddleSeg weights
 use Paddle's checkpoint format and are not silently converted or loaded by the
 PyTorch implementation.
+
+MobileNetV3-Large + LR-ASPP uses the same manifest and split:
+
+```bash
+python scripts/train.py \
+  --config configs/experiments/mobilenet_v3_lraspp_oxford_pet_smoke.yaml
+
+python scripts/evaluate.py \
+  --config configs/experiments/mobilenet_v3_lraspp_oxford_pet_smoke.yaml
+```
+
+This smoke configuration also starts from scratch. No Torchvision package or
+segmentation checkpoint is downloaded implicitly.
 
 The downloader stores verified archives under `data/oxford_pet/archives` and
 reuses them on subsequent runs. `data/` and `results/` are ignored by Git.

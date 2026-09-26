@@ -1,0 +1,29 @@
+name: mobilenet_v3_lraspp_synthetic
+output_dir: results
+
+data:
+  root: data/synthetic
+  manifest: data/synthetic/manifest.csv
+  split: configs/splits/synthetic/fold_01.yaml
+  num_classes: 2
+  ignore_index: 255
+  image_size: [64, 64]
+  mask_value_map:
+    0: 0
+    1: 1
+
+model:
+  name: mobilenet_v3_lraspp
+  pretrained: null
+
+train:
+  epochs: 2
+  batch_size: 2
+  num_workers: 0
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  dice_weight: 1.0
+  amp: false
+  seed: 42
+  device: auto
+  gradient_accumulation: 1
