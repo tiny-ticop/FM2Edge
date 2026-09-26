@@ -37,6 +37,9 @@ trimap 3   = uncertain border (ignore 255)
 ```
 
 The original list membership remains in `split_source` for traceability.
+Region metrics exclude trimap border pixels. Boundary F1 fills ignored regions
+from their nearest semantic classes for boundary scoring only, so the ignored
+trimap band does not erase the foreground/background transition.
 
 ## Local or Colab commands
 

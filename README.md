@@ -161,8 +161,9 @@ IoU. Average performance alone should not be used for conclusions.
 
 - Phase 1 uses deterministic resize/normalization only; domain augmentation is
   intentionally deferred.
-- Boundary F1 currently treats every non-background class as foreground and
-  uses a two-pixel tolerance at the resized evaluation resolution.
+- Boundary F1 uses a two-pixel tolerance at the resized evaluation resolution.
+  Ignored bands are nearest-class-filled for boundary scoring only, while all
+  region metrics continue to exclude ignored pixels.
 - The PIDNet boundary head is exposed but boundary supervision is deferred.
 - Pretrained weights are not downloaded automatically. This avoids hidden
   network access and forces weight provenance to be recorded.

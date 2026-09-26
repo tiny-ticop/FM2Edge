@@ -42,6 +42,11 @@ Select a GPU runtime and run the notebook from the first cell. The repository
 cell clones `https://github.com/tiny-ticop/FM2Edge.git`; later runs perform a
 fast-forward-only pull.
 
+At the end, the notebook creates a self-contained ZIP and starts a browser
+download. This is the primary result backup and does not require Google Drive.
+If automatic download is blocked, download the ZIP from Colab's Files panel.
+Google Drive copying remains optional.
+
 After the PoC, revoke the token in GitHub or let its short expiration end. If a
 token is ever exposed, revoke it immediately and create a replacement.
 

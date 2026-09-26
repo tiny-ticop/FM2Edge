@@ -48,13 +48,50 @@ def _boundary(labels: torch.Tensor, ignore_index: int) -> torch.Tensor:
     return boundary
 
 
+def _fill_ignored_regions(labels: torch.Tensor, ignore_index: int) -> torch.Tensor:
+    """Fill ignored regions from their nearest semantic classes.
+
+    Some datasets encode an uncertain band between semantic classes as ignore.
+    Leaving that band in place removes the actual class transition and makes a
+    boundary metric meaningless. Simultaneous one-pixel dilation reconstructs a
+    deterministic transition for boundary scoring only; region metrics continue
+    to exclude ignored pixels.
+    """
+    filled = labels.clone()
+    unresolved = filled == ignore_index
+    if not unresolved.any() or unresolved.all():
+        return filled
+
+    classes = torch.unique(filled[~unresolved])
+    max_steps = labels.shape[-2] + labels.shape[-1]
+    for _ in range(max_steps):
+        expanded = torch.stack(
+            [
+                F.max_pool2d(
+                    (filled == class_id).float()[None, None], kernel_size=3, stride=1, padding=1
+                )[0, 0].bool()
+                for class_id in classes
+            ]
+        )
+        reachable = expanded.any(dim=0) & unresolved
+        if not reachable.any():
+            break
+        nearest_class = expanded.float().argmax(dim=0)
+        for class_index, class_id in enumerate(classes):
+            filled[reachable & (nearest_class == class_index)] = class_id
+        unresolved = filled == ignore_index
+        if not unresolved.any():
+            break
+    return filled
+
+
 def boundary_f1(
     prediction: torch.Tensor, target: torch.Tensor, tolerance: int = 2, ignore_index: int = 255
 ) -> float:
     """Compute multiclass semantic boundary F1 with a pixel tolerance."""
     prediction = prediction.masked_fill(target == ignore_index, ignore_index)
-    pred_boundary = _boundary(prediction, ignore_index)
-    true_boundary = _boundary(target, ignore_index)
+    pred_boundary = _boundary(_fill_ignored_regions(prediction, ignore_index), ignore_index)
+    true_boundary = _boundary(_fill_ignored_regions(target, ignore_index), ignore_index)
     if not pred_boundary.any() and not true_boundary.any():
         return 1.0
     if not pred_boundary.any() or not true_boundary.any():
