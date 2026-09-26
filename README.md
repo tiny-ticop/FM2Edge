@@ -15,13 +15,14 @@ external layout -> canonical manifest -> machine-disjoint split
 - Configurable company-layout adapter
 - Reproducible train/validation/test machine folds
 - Official-structure PIDNet-S with a common model output
+- PyTorch PP-LiteSeg-STDC1 with the same model output contract
 - Cross-entropy + Dice training objective
 - IoU, Dice, precision, recall, Boundary F1, confidence and entropy
 - Per-image, per-delay, per-machine CSV summaries
 - Best/worst/random prediction panels
 - Config, split, environment, checkpoints, history and metrics per run
 
-Teacher models, knowledge distillation, additional Students, domain
+Teacher models, knowledge distillation, MobileNetV3 + LR-ASPP, domain
 augmentation, balanced sampling, HTML reports and SBC benchmarks belong to
 later phases.
 
@@ -67,6 +68,15 @@ python scripts/make_splits.py \
   --seed 42
 python scripts/train.py --config configs/experiments/pidnet_s_synthetic.yaml
 python scripts/evaluate.py --config configs/experiments/pidnet_s_synthetic.yaml
+```
+
+The PP-LiteSeg-STDC1 plumbing can be checked against the same split with:
+
+```bash
+python scripts/train.py \
+  --config configs/experiments/pp_liteseg_stdc1_synthetic.yaml
+python scripts/evaluate.py \
+  --config configs/experiments/pp_liteseg_stdc1_synthetic.yaml
 ```
 
 The test command is:

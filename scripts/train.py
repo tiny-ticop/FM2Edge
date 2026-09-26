@@ -50,7 +50,7 @@ def main() -> None:
     generator = torch.Generator().manual_seed(config.train.seed)
     if config.train.batch_size < 2 or len(train_dataset) < 2:
         raise ValueError(
-            "PIDNet-S training requires batch_size >= 2 and at least two train samples because it uses BatchNorm"
+            "BatchNorm-based Students require batch_size >= 2 and at least two train samples"
         )
     loader_args = {
         "batch_size": config.train.batch_size,

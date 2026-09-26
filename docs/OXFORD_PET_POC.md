@@ -15,6 +15,7 @@ limited to:
 - `scripts/prepare_oxford_pet.py`
 - `configs/datasets/oxford_pet.yaml`
 - `configs/experiments/pidnet_s_oxford_pet_smoke.yaml`
+- `configs/experiments/pp_liteseg_stdc1_oxford_pet_smoke.yaml`
 - `notebooks/phase1_5_oxford_pet_colab.ipynb`
 - `tests/test_oxford_pet.py`
 - this document and its `THIRD_PARTY.md` row
@@ -65,6 +66,21 @@ python scripts/train.py \
 python scripts/evaluate.py \
   --config configs/experiments/pidnet_s_oxford_pet_smoke.yaml
 ```
+
+After accepting the PIDNet-S pipeline, PP-LiteSeg-STDC1 can use the exact same
+manifest and split:
+
+```bash
+python scripts/train.py \
+  --config configs/experiments/pp_liteseg_stdc1_oxford_pet_smoke.yaml
+
+python scripts/evaluate.py \
+  --config configs/experiments/pp_liteseg_stdc1_oxford_pet_smoke.yaml
+```
+
+This comparison configuration starts from scratch. Official PaddleSeg weights
+use Paddle's checkpoint format and are not silently converted or loaded by the
+PyTorch implementation.
 
 The downloader stores verified archives under `data/oxford_pet/archives` and
 reuses them on subsequent runs. `data/` and `results/` are ignored by Git.
