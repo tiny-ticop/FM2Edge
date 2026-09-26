@@ -35,7 +35,9 @@ training or evaluation code.
 See [docs/OXFORD_PET_POC.md](docs/OXFORD_PET_POC.md) for commands, label mapping,
 limitations, license notes, and the exact list of removable files. A runnable
 Colab workflow is provided at
-`notebooks/phase1_5_oxford_pet_colab.ipynb`.
+`notebooks/phase1_5_oxford_pet_colab.ipynb`. For this private repository, follow
+[docs/COLAB_SETUP.md](docs/COLAB_SETUP.md) to grant read-only access through
+Colab Secrets without embedding a token in the notebook.
 
 ## Setup
 
