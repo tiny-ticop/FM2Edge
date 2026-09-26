@@ -1,0 +1,47 @@
+name: pidnet_s_cityscapes_baseline
+output_dir: results
+
+data:
+  root: data/cityscapes
+  manifest: data/cityscapes/manifest.csv
+  split: configs/splits/cityscapes/fold_01.yaml
+  num_classes: 19
+  ignore_index: 255
+  image_size: [256, 512]
+  mask_value_map:
+    7: 0
+    8: 1
+    11: 2
+    12: 3
+    13: 4
+    17: 5
+    19: 6
+    20: 7
+    21: 8
+    22: 9
+    23: 10
+    24: 11
+    25: 12
+    26: 13
+    27: 14
+    28: 15
+    31: 16
+    32: 17
+    33: 18
+
+model:
+  name: pidnet_s
+  pretrained: null
+
+train:
+  epochs: 40
+  batch_size: 4
+  num_workers: 2
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  dice_weight: 1.0
+  amp: true
+  seed: 42
+  device: auto
+  gradient_accumulation: 1
+

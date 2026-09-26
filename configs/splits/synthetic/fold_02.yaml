@@ -1,0 +1,10 @@
+train_machines:
+- machine_003
+- machine_004
+- machine_000
+val_machines:
+- machine_002
+test_machines:
+- machine_001
+seed: 42
+fold: 2
