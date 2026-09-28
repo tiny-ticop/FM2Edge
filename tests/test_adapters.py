@@ -24,6 +24,23 @@ def test_machine_adapter_supports_configurable_phase_folder(tmp_path: Path) -> N
     assert records[0].width == 9
 
 
+def test_machine_adapter_pairs_jpeg_images_with_png_masks(tmp_path: Path) -> None:
+    relative_image = Path("machine_01") / "delay" / "90" / "frame.jpg"
+    relative_mask = relative_image.with_suffix(".png")
+    _save_pair(tmp_path / "raw" / relative_image, tmp_path / "masks" / relative_mask)
+
+    records = scan_machine_folders(
+        tmp_path,
+        images_dir="raw",
+        masks_dir="masks",
+        mask_extension=".png",
+    )
+
+    assert len(records) == 1
+    assert records[0].image_path.endswith("frame.jpg")
+    assert records[0].mask_path.endswith("frame.png")
+
+
 def test_cityscapes_adapter_uses_city_as_machine(tmp_path: Path) -> None:
     image = tmp_path / "leftImg8bit" / "train" / "aachen" / "aachen_000001_000019_leftImg8bit.png"
     mask = tmp_path / "gtFine" / "train" / "aachen" / "aachen_000001_000019_gtFine_labelIds.png"

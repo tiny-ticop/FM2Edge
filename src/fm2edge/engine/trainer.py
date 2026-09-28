@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import time
 from pathlib import Path
 
@@ -100,6 +101,8 @@ def train(
     dice_weight: float,
     gradient_accumulation: int,
     amp: bool,
+    early_stopping_patience: int | None = None,
+    early_stopping_min_delta: float = 0.0,
 ) -> Path:
     """Train and return the validation-selected best checkpoint path."""
     output = Path(output_dir)
@@ -115,6 +118,10 @@ def train(
     )
     scaler = torch.amp.GradScaler("cuda", enabled=amp and device.type == "cuda")
     best_iou = -1.0
+    early_stopping_reference = -1.0
+    best_epoch = 0
+    epochs_without_improvement = 0
+    stopped_early = False
     best_path = checkpoint_dir / "best.pt"
     history: list[dict[str, float | int]] = []
 
@@ -168,9 +175,19 @@ def train(
             "val_mIoU": val_metrics["mIoU"],
         }
         torch.save(state, checkpoint_dir / "last.pt")
-        if val_metrics["mIoU"] > best_iou:
-            best_iou = val_metrics["mIoU"]
+        current_iou = val_metrics["mIoU"]
+        significant_improvement = (
+            current_iou > early_stopping_reference + early_stopping_min_delta
+        )
+        if current_iou > best_iou:
+            best_iou = current_iou
+            best_epoch = epoch
             torch.save(state, best_path)
+        if significant_improvement:
+            early_stopping_reference = current_iou
+            epochs_without_improvement = 0
+        else:
+            epochs_without_improvement += 1
         if writer:
             for key, value in row.items():
                 if key != "epoch":
@@ -181,10 +198,42 @@ def train(
             f"val_loss={val_metrics['loss']:.4f} val_mIoU={val_metrics['mIoU']:.4f}"
         )
 
+        with (history_dir / "epochs.csv").open("w", encoding="utf-8", newline="") as handle:
+            csv_writer = csv.DictWriter(handle, fieldnames=list(history[0]))
+            csv_writer.writeheader()
+            csv_writer.writerows(history)
+
+        if (
+            early_stopping_patience is not None
+            and epochs_without_improvement >= early_stopping_patience
+        ):
+            stopped_early = True
+            print(
+                f"early stopping at epoch={epoch:03d}; "
+                f"best_epoch={best_epoch:03d} best_val_mIoU={best_iou:.4f}"
+            )
+            break
+
     if writer:
         writer.close()
-    with (history_dir / "epochs.csv").open("w", encoding="utf-8", newline="") as handle:
-        csv_writer = csv.DictWriter(handle, fieldnames=list(history[0]))
-        csv_writer.writeheader()
-        csv_writer.writerows(history)
+    with (history_dir / "training_summary.json").open("w", encoding="utf-8") as handle:
+        json.dump(
+            {
+                "requested_epochs": epochs,
+                "completed_epochs": len(history),
+                "best_epoch": best_epoch,
+                "best_val_mIoU": best_iou,
+                "stopped_early": stopped_early,
+                "early_stopping_patience": early_stopping_patience,
+                "early_stopping_min_delta": early_stopping_min_delta,
+                "total_epoch_time_seconds": sum(float(row["epoch_time"]) for row in history),
+                "mean_epoch_time_seconds": sum(float(row["epoch_time"]) for row in history)
+                / len(history),
+                "max_training_gpu_memory_mb": max(
+                    float(row["gpu_memory_mb"]) for row in history
+                ),
+            },
+            handle,
+            indent=2,
+        )
     return best_path

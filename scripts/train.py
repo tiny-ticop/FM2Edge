@@ -74,6 +74,10 @@ def main() -> None:
     shutil.copy2(config.data.manifest, output / "manifest.csv")
     environment = environment_info()
     environment["manifest_sha256"] = file_sha256(config.data.manifest)
+    environment["model_parameters"] = sum(parameter.numel() for parameter in model.parameters())
+    environment["trainable_parameters"] = sum(
+        parameter.numel() for parameter in model.parameters() if parameter.requires_grad
+    )
     environment["pretrained_sha256"] = (
         file_sha256(config.model.pretrained) if config.model.pretrained else None
     )
@@ -92,6 +96,8 @@ def main() -> None:
         dice_weight=config.train.dice_weight,
         gradient_accumulation=config.train.gradient_accumulation,
         amp=config.train.amp,
+        early_stopping_patience=config.train.early_stopping_patience,
+        early_stopping_min_delta=config.train.early_stopping_min_delta,
     )
     print(f"best validation-selected checkpoint: {best}")
 

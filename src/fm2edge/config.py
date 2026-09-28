@@ -40,6 +40,8 @@ class TrainConfig:
     seed: int = 42
     device: str = "auto"
     gradient_accumulation: int = 1
+    early_stopping_patience: int | None = None
+    early_stopping_min_delta: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -85,4 +87,11 @@ def load_config(path: str | Path) -> ExperimentConfig:
         raise ValueError("num_classes must be at least 2; binary masks use classes 0 and 1")
     if config.train.gradient_accumulation < 1:
         raise ValueError("gradient_accumulation must be >= 1")
+    if config.train.epochs < 1:
+        raise ValueError("epochs must be >= 1")
+    if config.train.early_stopping_patience is not None:
+        if config.train.early_stopping_patience < 1:
+            raise ValueError("early_stopping_patience must be >= 1 or null")
+        if config.train.early_stopping_min_delta < 0:
+            raise ValueError("early_stopping_min_delta must be >= 0")
     return config

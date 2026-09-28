@@ -124,6 +124,10 @@ this experiment: it may already contain information from held-out cities.
 
 ## Company-layout adapter
 
+For the complete Windows GPU-PC workflow that validates JPG/PNG pairs, runs
+all three Students over five folds, and aggregates results, see
+[`docs/MACHINE_BASELINE_PC.md`](docs/MACHINE_BASELINE_PC.md).
+
 The expected default layout is:
 
 ```text

@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import random
+import time
 from collections import defaultdict
 from collections.abc import Iterable
 from pathlib import Path
@@ -131,10 +132,26 @@ def evaluate(
         lambda: torch.zeros((num_classes, num_classes), dtype=torch.long)
     )
     candidates: list[tuple[dict[str, object], torch.Tensor, torch.Tensor, torch.Tensor]] = []
-    for batch in loader:
+    inference_seconds = 0.0
+    inference_images = 0
+    if device.type == "cuda":
+        torch.cuda.reset_peak_memory_stats(device)
+    for batch_index, batch in enumerate(loader):
         images = batch["image"].to(device)
         targets = batch["mask"].to(device)
+        if batch_index == 0:
+            # Exclude one-time CUDA kernel/setup overhead from the reported latency.
+            model(images)
+            if device.type == "cuda":
+                torch.cuda.synchronize(device)
+        if device.type == "cuda":
+            torch.cuda.synchronize(device)
+        started = time.perf_counter()
         logits = model(images).logits
+        if device.type == "cuda":
+            torch.cuda.synchronize(device)
+        inference_seconds += time.perf_counter() - started
+        inference_images += images.shape[0]
         predictions = logits.argmax(dim=1)
         for index in range(images.shape[0]):
             metrics = sample_metrics(logits[index], targets[index], num_classes, ignore_index)
@@ -172,6 +189,17 @@ def evaluate(
             "num_machines": len(machine_rows),
             "machine_iou_std": float(np.std(machine_ious)) if machine_ious else 0.0,
             "worst_machine_iou": min(machine_ious) if machine_ious else 0.0,
+            "inference_ms_per_image": (
+                inference_seconds * 1000.0 / inference_images if inference_images else 0.0
+            ),
+            "inference_fps": (
+                inference_images / inference_seconds if inference_seconds > 0 else 0.0
+            ),
+            "gpu_peak_memory_mb": (
+                torch.cuda.max_memory_allocated(device) / (1024**2)
+                if device.type == "cuda"
+                else 0.0
+            ),
         }
     )
     with (output / "metrics" / "summary.json").open("w", encoding="utf-8") as handle:

@@ -23,9 +23,14 @@ def scan_machine_folders(
     images_dir: str = "images",
     masks_dir: str = "masks",
     phase_folder: str = "delay",
+    mask_extension: str | None = None,
     dataset_name: str = "machine",
 ) -> list[SampleRecord]:
-    """Scan ``images/<machine>/<phase_folder>/<delay>`` and matching masks."""
+    """Scan machine folders and pair images with masks by relative path or stem.
+
+    ``mask_extension`` permits lossless PNG masks to accompany JPEG source images.
+    For example, ``frame.jpg`` is paired with ``frame.png`` when it is ``.png``.
+    """
     root_path = Path(root)
     image_root = root_path / images_dir
     mask_root = root_path / masks_dir
@@ -41,7 +46,8 @@ def scan_machine_folders(
         if len(parts) < 4 or parts[1] != phase_folder:
             continue
         machine_id, delay = parts[0], parts[2]
-        mask_path = mask_root / relative
+        mask_relative = relative.with_suffix(mask_extension) if mask_extension else relative
+        mask_path = mask_root / mask_relative
         if not mask_path.is_file():
             raise FileNotFoundError(f"Mask not found for {image_path}: expected {mask_path}")
         with Image.open(image_path) as image:
@@ -50,7 +56,7 @@ def scan_machine_folders(
             SampleRecord(
                 sample_id=_sample_id(dataset_name, relative),
                 image_path=(Path(images_dir) / relative).as_posix(),
-                mask_path=(Path(masks_dir) / relative).as_posix(),
+                mask_path=(Path(masks_dir) / mask_relative).as_posix(),
                 machine_id=machine_id,
                 delay=str(delay),
                 dataset_name=dataset_name,

@@ -13,7 +13,7 @@ from fm2edge.data.dataset import ManifestSegmentationDataset
 from fm2edge.data.splits import load_split
 from fm2edge.data.transforms import SegmentationTransform
 from fm2edge.engine.evaluator import evaluate
-from fm2edge.engine.utils import resolve_device, seed_everything
+from fm2edge.engine.utils import resolve_device, seed_everything, write_json
 from fm2edge.models.registry import build_student
 
 
@@ -66,6 +66,9 @@ def main() -> None:
         config.data.std,
         seed=config.train.seed,
     )
+    summary["model_parameters"] = sum(parameter.numel() for parameter in model.parameters())
+    summary["checkpoint_size_mb"] = checkpoint_path.stat().st_size / (1024**2)
+    write_json(summary, output / "metrics" / "summary.json")
     print(summary)
 
 
