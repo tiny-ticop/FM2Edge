@@ -1,0 +1,22 @@
+models:
+  dinov2_vits14_pretrained:
+    family: dinov2
+    variant: vits14
+    repository_path: external/dinov2
+    repository_commit: 7764ea0f912e53c92e82eb78a2a1631e92725fc8
+    weights_path: checkpoints/dinov2_vits14_pretrain.pth
+    checkpoint_sha256: b938bf1bc15cd2ec0feacfe3a1bb553fe8ea9ca46a7e1d8d00217f29aef60cd9
+  dinov2_vits14_random:
+    family: dinov2
+    variant: vits14
+    repository_path: external/dinov2
+    repository_commit: 7764ea0f912e53c92e82eb78a2a1631e92725fc8
+    weights_path: null
+    checkpoint_sha256: null
+  dinov3_vits16_pretrained:
+    family: dinov3
+    variant: vits16
+    repository_path: external/dinov3
+    repository_commit: 6876159a11b4df116f30f667f8c9888617df0751
+    weights_path: checkpoints/dinov3_vits16_pretrain_lvd1689m.pth
+    checkpoint_sha256: null

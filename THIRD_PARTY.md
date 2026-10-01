@@ -19,11 +19,11 @@ license for source code must not be assumed to cover weights or training data.
 | Cityscapes data | https://www.cityscapes-dataset.com/ | Cityscapes terms; non-commercial | Home PoC only | Data is not bundled or redistributed. Do not carry dataset-derived artifacts into a commercial product without review. |
 | Oxford-IIIT Pet data | https://www.robots.ox.ac.uk/~vgg/data/pets/ | CC BY-SA 4.0; image copyrights remain with original owners | Disposable public PoC | Data is downloaded from the official host and is not bundled. Preserve attribution and review ShareAlike obligations before redistributing derivatives. |
 
-## Planned, not yet included in Phase 1
+## Optional foundation-model integrations
 
-| Item | Source | License status to verify before integration |
-|---|---|---|
-| DINOv2 | https://github.com/facebookresearch/dinov2 | Check the exact model artifact; repository contains separately licensed additions |
-| DINOv3 | https://github.com/facebookresearch/dinov3 | Custom DINOv3 license and access agreement; company legal review required |
+| Item | Source | Use in FM2Edge | License status |
+|---|---|---|---|
+| DINOv2 | https://github.com/facebookresearch/dinov2 | Frozen backbone loaded from a separately cloned official repository | No code or weights are bundled. Review the exact repository revision and weight artifact before company use; upstream also contains separately licensed additions. |
+| DINOv3 | https://github.com/facebookresearch/dinov3 | Frozen backbone after access approval | No code or weights are bundled. DINOv3 uses a custom license and access agreement; company legal review is required. |
 
 This document is an engineering inventory, not legal advice.

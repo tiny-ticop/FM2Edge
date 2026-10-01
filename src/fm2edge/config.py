@@ -26,6 +26,16 @@ class DataConfig:
 class ModelConfig:
     name: str = "pidnet_s"
     pretrained: str | None = None
+    family: str | None = None
+    variant: str | None = None
+    repository_path: str | None = None
+    weights_path: str | None = None
+    head: str | None = None
+    feature_layers: int = 4
+    initialization: str = "pretrained"
+    feature_mode: str = "online"
+    cache_dir: str | None = None
+    embedding_dim: int | None = None
 
 
 @dataclass(frozen=True)
@@ -125,4 +135,17 @@ def load_config(path: str | Path) -> ExperimentConfig:
         )
     if not 0.0 <= config.augmentation.probability <= 1.0:
         raise ValueError("augmentation.probability must be between 0 and 1")
+    if config.model.name == "foundation_probe":
+        if config.model.family not in {"dinov2", "dinov3"}:
+            raise ValueError("foundation model family must be 'dinov2' or 'dinov3'")
+        if config.model.head not in {"linear", "lightweight_conv"}:
+            raise ValueError("foundation probe head must be 'linear' or 'lightweight_conv'")
+        if config.model.initialization not in {"pretrained", "random_init"}:
+            raise ValueError("initialization must be 'pretrained' or 'random_init'")
+        if config.model.feature_mode not in {"online", "cached"}:
+            raise ValueError("feature_mode must be 'online' or 'cached'")
+        if config.model.feature_layers < 1:
+            raise ValueError("feature_layers must be >= 1")
+        if config.augmentation.preset != "none":
+            raise ValueError("foundation probes currently require augmentation.preset='none'")
     return config

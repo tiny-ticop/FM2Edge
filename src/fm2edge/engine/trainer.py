@@ -14,6 +14,25 @@ from fm2edge.losses.segmentation import SegmentationLoss
 from fm2edge.metrics.segmentation import boundary_f1, confusion_matrix, metrics_from_confusion
 
 
+def _forward_batch(
+    model: torch.nn.Module, batch: dict[str, object], images: torch.Tensor, device: torch.device
+):
+    forward_batch = getattr(model, "forward_batch", None)
+    if forward_batch is not None:
+        return forward_batch(batch, images, device)
+    return model(images)
+
+
+def _checkpoint_state(model: torch.nn.Module) -> dict[str, torch.Tensor]:
+    checkpoint_state = getattr(model, "checkpoint_state_dict", None)
+    return checkpoint_state() if checkpoint_state is not None else model.state_dict()
+
+
+def _checkpoint_metadata(model: torch.nn.Module) -> dict[str, object] | None:
+    checkpoint_metadata = getattr(model, "checkpoint_metadata", None)
+    return checkpoint_metadata() if checkpoint_metadata is not None else None
+
+
 def _run_epoch(
     model: torch.nn.Module,
     loader: DataLoader,
@@ -38,7 +57,7 @@ def _run_epoch(
         targets = batch["mask"].to(device, non_blocking=True)
         with torch.set_grad_enabled(training):
             with torch.autocast(device_type=device.type, enabled=amp and device.type == "cuda"):
-                output = model(images)
+                output = _forward_batch(model, batch, images, device)
                 losses = criterion(output.logits, targets)
                 loss = losses["total"]
                 if "segmentation" in output.aux_logits:
@@ -114,7 +133,12 @@ def train(
     history_dir.mkdir(parents=True, exist_ok=True)
     model.to(device)
     criterion = SegmentationLoss(ignore_index=ignore_index, dice_weight=dice_weight)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    trainable_parameters = [parameter for parameter in model.parameters() if parameter.requires_grad]
+    if not trainable_parameters:
+        raise ValueError("Model has no trainable parameters")
+    optimizer = torch.optim.AdamW(
+        trainable_parameters, lr=learning_rate, weight_decay=weight_decay
+    )
     scheduler = torch.optim.lr_scheduler.LambdaLR(
         optimizer, lr_lambda=lambda epoch: max(0.0, (1.0 - epoch / max(epochs, 1)) ** 0.9)
     )
@@ -171,10 +195,11 @@ def train(
         history.append(row)
         state = {
             "epoch": epoch,
-            "model": model.state_dict(),
+            "model": _checkpoint_state(model),
             "optimizer": optimizer.state_dict(),
             "scheduler": scheduler.state_dict(),
             "val_mIoU": val_metrics["mIoU"],
+            "model_metadata": _checkpoint_metadata(model),
         }
         if keep_last_checkpoint:
             torch.save(state, checkpoint_dir / "last.pt")
@@ -186,7 +211,12 @@ def train(
             best_iou = current_iou
             best_epoch = epoch
             best_state = (
-                {"epoch": epoch, "model": model.state_dict(), "val_mIoU": current_iou}
+                {
+                    "epoch": epoch,
+                    "model": _checkpoint_state(model),
+                    "model_metadata": _checkpoint_metadata(model),
+                    "val_mIoU": current_iou,
+                }
                 if lightweight_best_checkpoint
                 else state
             )

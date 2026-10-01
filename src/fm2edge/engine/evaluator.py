@@ -15,6 +15,7 @@ import torch
 from PIL import Image, ImageDraw
 from torch.utils.data import DataLoader
 
+from fm2edge.engine.trainer import _forward_batch
 from fm2edge.metrics.segmentation import confusion_matrix, metrics_from_confusion, sample_metrics
 
 METRIC_COLUMNS = (
@@ -142,13 +143,13 @@ def evaluate(
         targets = batch["mask"].to(device)
         if batch_index == 0:
             # Exclude one-time CUDA kernel/setup overhead from the reported latency.
-            model(images)
+            _forward_batch(model, batch, images, device)
             if device.type == "cuda":
                 torch.cuda.synchronize(device)
         if device.type == "cuda":
             torch.cuda.synchronize(device)
         started = time.perf_counter()
-        logits = model(images).logits
+        logits = _forward_batch(model, batch, images, device).logits
         if device.type == "cuda":
             torch.cuda.synchronize(device)
         inference_seconds += time.perf_counter() - started

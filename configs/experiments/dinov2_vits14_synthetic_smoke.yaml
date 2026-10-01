@@ -1,0 +1,44 @@
+name: dinov2_vits14_synthetic_smoke
+output_dir: results
+
+data:
+  root: data/synthetic
+  manifest: data/synthetic/manifest.csv
+  split: configs/splits/synthetic/fold_01.yaml
+  num_classes: 2
+  ignore_index: 255
+  image_size: [56, 56]
+  mask_value_map:
+    0: 0
+    1: 1
+    255: 255
+
+model:
+  name: foundation_probe
+  family: dinov2
+  variant: vits14
+  repository_path: external/dinov2
+  weights_path: checkpoints/dinov2_vits14_pretrain.pth
+  head: linear
+  feature_layers: 4
+  initialization: pretrained
+  feature_mode: cached
+  cache_dir: results/foundation_feature_cache
+
+train:
+  epochs: 1
+  batch_size: 2
+  num_workers: 0
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  dice_weight: 1.0
+  amp: false
+  seed: 42
+  device: cpu
+  gradient_accumulation: 1
+  early_stopping_patience: null
+  keep_last_checkpoint: false
+  lightweight_best_checkpoint: true
+
+augmentation:
+  preset: none

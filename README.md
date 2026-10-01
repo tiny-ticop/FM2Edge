@@ -26,6 +26,17 @@ external layout -> canonical manifest -> machine-disjoint split
 Teacher models, knowledge distillation, domain augmentation, balanced
 sampling, HTML reports and SBC benchmarks belong to later phases.
 
+## Frozen DINO foundation probes
+
+The foundation-probe phase evaluates whether frozen DINO patch features help
+segmentation on held-out machines. It supports DINOv2 ViT-S/14 and DINOv3
+ViT-S/16, linear and lightweight convolutional probes, validated feature
+caching, and a DINOv2 random-initialization control.
+
+See `docs/FOUNDATION_PROBE_PC_JA.md` for the company-PC workflow. Official DINO
+repositories, weights, company data, cached features, and credentials remain
+outside Git.
+
 ## Immediate Colab PoC with Oxford-IIIT Pet
 
 The disposable Oxford-IIIT Pet adapter can download the public segmentation

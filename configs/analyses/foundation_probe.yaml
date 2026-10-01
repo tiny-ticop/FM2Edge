@@ -1,0 +1,63 @@
+name: frozen_dino_foundation_probe
+output_dir: results/foundation_probe
+cache_dir: results/foundation_feature_cache
+feature_mode: cached
+
+data:
+  root: data
+  manifest: data/company/manifest.csv
+  splits_dir: configs/splits/company
+  num_classes: 2
+  ignore_index: 255
+  image_size: [416, 640]
+  mask_value_map:
+    0: 0
+    1: 1
+    255: 255
+
+folds: [1, 2, 3, 4, 5]
+
+teachers:
+  dinov2_vits14_pretrained:
+    enabled: true
+    family: dinov2
+    variant: vits14
+    repository_path: external/dinov2
+    weights_path: checkpoints/dinov2_vits14_pretrain.pth
+    initialization: pretrained
+    feature_layers: 4
+    heads: [linear, lightweight_conv]
+  dinov2_vits14_random:
+    enabled: true
+    family: dinov2
+    variant: vits14
+    repository_path: external/dinov2
+    weights_path: null
+    initialization: random_init
+    feature_layers: 4
+    heads: [linear]
+  dinov3_vits16_pretrained:
+    enabled: true
+    family: dinov3
+    variant: vits16
+    repository_path: external/dinov3
+    weights_path: checkpoints/dinov3_vits16_pretrain_lvd1689m.pth
+    initialization: pretrained
+    feature_layers: 4
+    heads: [linear, lightweight_conv]
+
+training:
+  epochs: 50
+  batch_size: 2
+  num_workers: 4
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  dice_weight: 1.0
+  amp: true
+  seed: 42
+  device: cuda
+  gradient_accumulation: 1
+  early_stopping_patience: 10
+  early_stopping_min_delta: 0.001
+  keep_last_checkpoint: false
+  lightweight_best_checkpoint: true
