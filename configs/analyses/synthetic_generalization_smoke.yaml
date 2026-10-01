@@ -1,0 +1,44 @@
+name: synthetic_generalization_smoke
+output_dir: results/generalization_synthetic_smoke
+
+data:
+  root: data/synthetic
+  manifest: data/synthetic/manifest.csv
+  splits_dir: configs/splits/synthetic
+
+models:
+  pidnet_s: configs/experiments/pidnet_s_synthetic.yaml
+  pp_liteseg_stdc1: configs/experiments/pp_liteseg_stdc1_synthetic.yaml
+  mobilenet_v3_lraspp: configs/experiments/mobilenet_v3_lraspp_synthetic.yaml
+
+folds: [1]
+seeds: [42]
+sample_seed: 42
+
+training:
+  epochs: 1
+  batch_size: 2
+  num_workers: 0
+  amp: false
+  device: auto
+  early_stopping_patience: null
+  early_stopping_min_delta: 0.0
+  keep_last_checkpoint: false
+  lightweight_best_checkpoint: true
+
+suites:
+  reference:
+    enabled: true
+  machine_diversity:
+    enabled: false
+    machine_counts: [1, 2, 3]
+    total_images: 6
+    max_combinations_per_count: null
+  images_per_machine:
+    enabled: false
+    counts: [1, 2, all]
+  augmentation:
+    enabled: true
+    presets: [combined]
+    parameters:
+      probability: 1.0

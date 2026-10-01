@@ -29,6 +29,18 @@ class ModelConfig:
 
 
 @dataclass(frozen=True)
+class AugmentationConfig:
+    preset: str = "none"
+    probability: float = 0.8
+    brightness: float = 0.3
+    contrast: float = 0.3
+    saturation: float = 0.2
+    hue: float = 0.05
+    noise_std: float = 0.04
+    blur_radius: float = 1.5
+
+
+@dataclass(frozen=True)
 class TrainConfig:
     epochs: int = 30
     batch_size: int = 4
@@ -42,6 +54,8 @@ class TrainConfig:
     gradient_accumulation: int = 1
     early_stopping_patience: int | None = None
     early_stopping_min_delta: float = 0.0
+    keep_last_checkpoint: bool = True
+    lightweight_best_checkpoint: bool = False
 
 
 @dataclass(frozen=True)
@@ -51,6 +65,7 @@ class ExperimentConfig:
     data: DataConfig
     model: ModelConfig = field(default_factory=ModelConfig)
     train: TrainConfig = field(default_factory=TrainConfig)
+    augmentation: AugmentationConfig = field(default_factory=AugmentationConfig)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -82,6 +97,7 @@ def load_config(path: str | Path) -> ExperimentConfig:
         data=DataConfig(**data_raw),
         model=ModelConfig(**raw.get("model", {})),
         train=TrainConfig(**raw.get("train", {})),
+        augmentation=AugmentationConfig(**raw.get("augmentation", {})),
     )
     if config.data.num_classes < 2:
         raise ValueError("num_classes must be at least 2; binary masks use classes 0 and 1")
@@ -94,4 +110,19 @@ def load_config(path: str | Path) -> ExperimentConfig:
             raise ValueError("early_stopping_patience must be >= 1 or null")
         if config.train.early_stopping_min_delta < 0:
             raise ValueError("early_stopping_min_delta must be >= 0")
+    allowed_presets = {
+        "none",
+        "brightness_contrast",
+        "color",
+        "noise",
+        "blur",
+        "combined",
+    }
+    if config.augmentation.preset not in allowed_presets:
+        raise ValueError(
+            f"augmentation.preset must be one of {sorted(allowed_presets)}, "
+            f"got {config.augmentation.preset!r}"
+        )
+    if not 0.0 <= config.augmentation.probability <= 1.0:
+        raise ValueError("augmentation.probability must be between 0 and 1")
     return config

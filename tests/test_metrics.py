@@ -12,6 +12,7 @@ def test_perfect_prediction_metrics() -> None:
     assert metrics["IoU"] == 1.0
     assert metrics["Dice"] == 1.0
     assert metrics["Boundary_F1"] == 1.0
+    assert metrics["target_foreground_ratio"] == pytest.approx(1 / 3)
 
 
 def test_boundary_f1_reconstructs_boundary_across_ignore_band() -> None:

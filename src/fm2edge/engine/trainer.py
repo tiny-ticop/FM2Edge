@@ -103,6 +103,8 @@ def train(
     amp: bool,
     early_stopping_patience: int | None = None,
     early_stopping_min_delta: float = 0.0,
+    keep_last_checkpoint: bool = True,
+    lightweight_best_checkpoint: bool = False,
 ) -> Path:
     """Train and return the validation-selected best checkpoint path."""
     output = Path(output_dir)
@@ -174,7 +176,8 @@ def train(
             "scheduler": scheduler.state_dict(),
             "val_mIoU": val_metrics["mIoU"],
         }
-        torch.save(state, checkpoint_dir / "last.pt")
+        if keep_last_checkpoint:
+            torch.save(state, checkpoint_dir / "last.pt")
         current_iou = val_metrics["mIoU"]
         significant_improvement = (
             current_iou > early_stopping_reference + early_stopping_min_delta
@@ -182,7 +185,12 @@ def train(
         if current_iou > best_iou:
             best_iou = current_iou
             best_epoch = epoch
-            torch.save(state, best_path)
+            best_state = (
+                {"epoch": epoch, "model": model.state_dict(), "val_mIoU": current_iou}
+                if lightweight_best_checkpoint
+                else state
+            )
+            torch.save(best_state, best_path)
         if significant_improvement:
             early_stopping_reference = current_iou
             epochs_without_improvement = 0
@@ -232,6 +240,8 @@ def train(
                 "max_training_gpu_memory_mb": max(
                     float(row["gpu_memory_mb"]) for row in history
                 ),
+                "keep_last_checkpoint": keep_last_checkpoint,
+                "lightweight_best_checkpoint": lightweight_best_checkpoint,
             },
             handle,
             indent=2,

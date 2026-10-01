@@ -24,6 +24,7 @@ METRIC_COLUMNS = (
     "Precision",
     "Recall",
     "foreground_ratio",
+    "target_foreground_ratio",
     "prediction_confidence",
     "prediction_entropy",
 )

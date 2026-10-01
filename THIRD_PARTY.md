@@ -9,6 +9,9 @@ license for source code must not be assumed to cover weights or training data.
 | Pillow | https://github.com/python-pillow/Pillow | HPND | Image I/O | Runtime dependency. |
 | PyYAML | https://github.com/yaml/pyyaml | MIT | Configuration | Runtime dependency. |
 | NumPy | https://github.com/numpy/numpy | BSD-3-Clause | Metrics/data conversion | Runtime dependency. |
+| pandas | https://github.com/pandas-dev/pandas | BSD-3-Clause | Optional factor-analysis tables | Installed through the `analysis` extra. |
+| Matplotlib | https://github.com/matplotlib/matplotlib | PSF-based | Optional headless report figures | Installed through the `analysis` extra. |
+| scikit-learn | https://github.com/scikit-learn/scikit-learn | BSD-3-Clause | Optional PCA and feature-domain metrics | Installed through the `analysis` extra. |
 | PIDNet source | https://github.com/XuJiacong/PIDNet | MIT | PIDNet-S architecture | `models/pidnet.py` is an adapted implementation. Keep attribution. |
 | PIDNet weights | Official repository download links | Verify per artifact | Optional initialization | Not bundled. Record URL and SHA-256 before use. Do not use Cityscapes segmentation weights in city-held-out experiments. |
 | PaddleSeg PP-LiteSeg / STDC1 source | https://github.com/PaddlePaddle/PaddleSeg | Apache-2.0 | PyTorch-adapted PP-LiteSeg-STDC1 architecture | License copy is retained. The official Paddle weight format is not loaded or bundled. |

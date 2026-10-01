@@ -34,7 +34,15 @@ def main() -> None:
     split = load_split(config.data.split)
     output = Path(config.output_dir) / config.name / f"fold_{split.fold:02d}"
     output.mkdir(parents=True, exist_ok=True)
-    transform = SegmentationTransform(
+    train_transform = SegmentationTransform(
+        config.data.image_size,
+        config.data.mean,
+        config.data.std,
+        config.data.ignore_index,
+        config.data.mask_value_map,
+        config.augmentation,
+    )
+    val_transform = SegmentationTransform(
         config.data.image_size,
         config.data.mean,
         config.data.std,
@@ -42,10 +50,14 @@ def main() -> None:
         config.data.mask_value_map,
     )
     train_dataset = ManifestSegmentationDataset(
-        config.data.manifest, config.data.root, split.train_machines, transform
+        config.data.manifest,
+        config.data.root,
+        split.train_machines,
+        train_transform,
+        sample_ids=split.train_sample_ids or None,
     )
     val_dataset = ManifestSegmentationDataset(
-        config.data.manifest, config.data.root, split.val_machines, transform
+        config.data.manifest, config.data.root, split.val_machines, val_transform
     )
     generator = torch.Generator().manual_seed(config.train.seed)
     if config.train.batch_size < 2 or len(train_dataset) < 2:
@@ -98,6 +110,8 @@ def main() -> None:
         amp=config.train.amp,
         early_stopping_patience=config.train.early_stopping_patience,
         early_stopping_min_delta=config.train.early_stopping_min_delta,
+        keep_last_checkpoint=config.train.keep_last_checkpoint,
+        lightweight_best_checkpoint=config.train.lightweight_best_checkpoint,
     )
     print(f"best validation-selected checkpoint: {best}")
 

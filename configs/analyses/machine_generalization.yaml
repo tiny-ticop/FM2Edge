@@ -1,0 +1,59 @@
+name: machine_generalization
+output_dir: results/generalization_analysis
+
+data:
+  root: data
+  manifest: data/company/manifest.csv
+  splits_dir: configs/splits/company
+
+models:
+  pidnet_s: configs/experiments/machine_pidnet_s.yaml
+  pp_liteseg_stdc1: configs/experiments/machine_pp_liteseg_stdc1.yaml
+  mobilenet_v3_lraspp: configs/experiments/machine_mobilenet_v3_lraspp.yaml
+
+# Change these lists to expand or reduce the study without editing Python.
+folds: [1, 2, 3, 4, 5]
+seeds: [42]
+sample_seed: 42
+
+training:
+  epochs: 50
+  batch_size: 4
+  num_workers: 4
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  dice_weight: 1.0
+  amp: true
+  device: cuda
+  gradient_accumulation: 1
+  early_stopping_patience: 10
+  early_stopping_min_delta: 0.001
+  keep_last_checkpoint: false
+  lightweight_best_checkpoint: true
+
+suites:
+  reference:
+    enabled: true
+
+  machine_diversity:
+    enabled: true
+    machine_counts: [1, 2, 3]
+    total_images: 50
+    # null means every combination. Set an integer to cap large studies.
+    max_combinations_per_count: null
+
+  images_per_machine:
+    enabled: true
+    counts: [10, 25, 50, all]
+
+  augmentation:
+    enabled: true
+    presets: [brightness_contrast, color, noise, blur, combined]
+    parameters:
+      probability: 0.8
+      brightness: 0.3
+      contrast: 0.3
+      saturation: 0.2
+      hue: 0.05
+      noise_std: 0.04
+      blur_radius: 1.5

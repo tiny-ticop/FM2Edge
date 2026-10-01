@@ -128,6 +128,13 @@ For the complete Windows GPU-PC workflow that validates JPG/PNG pairs, runs
 all three Students over five folds, and aggregates results, see
 [`docs/MACHINE_BASELINE_PC.md`](docs/MACHINE_BASELINE_PC.md).
 
+After completing that baseline, the configurable machine-count, image-count,
+augmentation, heatmap, input-domain, and feature-distribution study is
+documented in
+[`docs/MACHINE_GENERALIZATION_ANALYSIS_PC.md`](docs/MACHINE_GENERALIZATION_ANALYSIS_PC.md).
+The Japanese quick-start is
+[`docs/MACHINE_GENERALIZATION_ANALYSIS_PC_JA.md`](docs/MACHINE_GENERALIZATION_ANALYSIS_PC_JA.md).
+
 The expected default layout is:
 
 ```text

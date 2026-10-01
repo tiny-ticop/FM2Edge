@@ -119,10 +119,14 @@ def sample_metrics(
     pixel_confidence = probabilities.max(dim=0).values
     entropy = -(probabilities * probabilities.clamp_min(1e-8).log()).sum(dim=0)
     foreground = prediction > 0
+    target_foreground = target > 0
     metrics.update(
         {
             "Boundary_F1": boundary_f1(prediction, target, ignore_index=ignore_index),
             "foreground_ratio": foreground[valid].float().mean().item() if valid.any() else 0.0,
+            "target_foreground_ratio": (
+                target_foreground[valid].float().mean().item() if valid.any() else 0.0
+            ),
             "prediction_confidence": pixel_confidence[valid].mean().item() if valid.any() else 0.0,
             "prediction_entropy": entropy[valid].mean().item() if valid.any() else 0.0,
         }

@@ -21,15 +21,25 @@ class ManifestSegmentationDataset(Dataset):
         root: str | Path,
         machines: Collection[str],
         transform: SegmentationTransform,
+        sample_ids: Collection[str] | None = None,
     ) -> None:
         self.root = Path(root)
         self.transform = transform
         machine_set = set(machines)
+        sample_set = set(sample_ids) if sample_ids is not None else None
         self.records = [
-            record for record in read_manifest(manifest) if record.machine_id in machine_set
+            record
+            for record in read_manifest(manifest)
+            if record.machine_id in machine_set
+            and (sample_set is None or record.sample_id in sample_set)
         ]
         if not self.records:
             raise ValueError(f"No manifest samples matched machines: {sorted(machine_set)}")
+        if sample_set is not None:
+            found = {record.sample_id for record in self.records}
+            missing = sample_set - found
+            if missing:
+                raise ValueError(f"Requested train sample IDs were not found: {sorted(missing)[:5]}")
 
     def __len__(self) -> int:
         return len(self.records)

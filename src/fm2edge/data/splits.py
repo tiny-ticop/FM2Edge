@@ -19,6 +19,7 @@ class MachineSplit:
     test_machines: tuple[str, ...]
     seed: int
     fold: int
+    train_sample_ids: tuple[str, ...] = ()
 
     def validate(self) -> None:
         train, val, test = map(set, (self.train_machines, self.val_machines, self.test_machines))
@@ -34,6 +35,11 @@ class MachineSplit:
             "test_machines": list(self.test_machines),
             "seed": self.seed,
             "fold": self.fold,
+            **(
+                {"train_sample_ids": list(self.train_sample_ids)}
+                if self.train_sample_ids
+                else {}
+            ),
         }
 
 
@@ -77,6 +83,7 @@ def load_split(path: str | Path) -> MachineSplit:
         test_machines=tuple(str(value) for value in raw["test_machines"]),
         seed=int(raw["seed"]),
         fold=int(raw["fold"]),
+        train_sample_ids=tuple(str(value) for value in raw.get("train_sample_ids", ())),
     )
     split.validate()
     return split
