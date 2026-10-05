@@ -123,6 +123,7 @@ def evaluate(
     std: tuple[float, ...],
     save_predictions: bool = True,
     seed: int = 42,
+    include_foreground_metrics: bool = False,
 ) -> dict[str, float]:
     model.eval()
     output = Path(output_dir)
@@ -164,6 +165,17 @@ def evaluate(
                 "delay": batch["delay"][index],
                 **metrics,
             }
+            if include_foreground_metrics:
+                row.update(
+                    _foreground_metrics(
+                        confusion_matrix(
+                            predictions[index].cpu(),
+                            targets[index].cpu(),
+                            num_classes,
+                            ignore_index,
+                        )
+                    )
+                )
             rows.append(row)
             matrix = confusion_matrix(
                 predictions[index].cpu(), targets[index].cpu(), num_classes, ignore_index
@@ -178,6 +190,11 @@ def evaluate(
     _write_csv(rows, output / "metrics" / "per_image.csv")
     machine_rows = _aggregate(rows, "machine_id", machine_confusions)
     delay_rows = _aggregate(rows, "delay", delay_confusions)
+    if include_foreground_metrics:
+        for row in machine_rows:
+            row.update(_foreground_metrics(machine_confusions[str(row["machine_id"])]))
+        for row in delay_rows:
+            row.update(_foreground_metrics(delay_confusions[str(row["delay"])]))
     _write_csv(machine_rows, output / "metrics" / "per_machine.csv")
     _write_csv(delay_rows, output / "metrics" / "per_delay.csv")
     summary = {
@@ -204,6 +221,10 @@ def evaluate(
             ),
         }
     )
+    if include_foreground_metrics:
+        for key in ("Foreground_IoU", "Foreground_Recall"):
+            values = [row[key] for row in machine_rows if row[key] is not None]
+            summary[key] = float(np.mean(values)) if values else None
     with (output / "metrics" / "summary.json").open("w", encoding="utf-8") as handle:
         json.dump(summary, handle, indent=2)
 
@@ -223,3 +244,15 @@ def evaluate(
                     std,
                 )
     return summary
+
+
+def _foreground_metrics(matrix: torch.Tensor) -> dict[str, float | None]:
+    """Class 1 metrics; absent foreground/union is undefined, not a perfect score."""
+    tp = float(matrix[1, 1])
+    predicted = float(matrix[:, 1].sum())
+    actual = float(matrix[1, :].sum())
+    union = predicted + actual - tp
+    return {
+        "Foreground_IoU": tp / union if union else None,
+        "Foreground_Recall": tp / actual if actual else None,
+    }

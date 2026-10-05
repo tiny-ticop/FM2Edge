@@ -1,5 +1,9 @@
 # FM2Edge
 
+Frozen DINOv2/v3 knowledge-distillation experiments are documented in
+[the Japanese KD PC guide](docs/KNOWLEDGE_DISTILLATION_PC_JA.md).
+The existing Baseline, generalization-study and foundation-probe workflows remain available.
+
 PyTorch experiment foundation for evaluating lightweight semantic segmentation
 on entirely unseen machine domains. Phase 1 provides a leakage-safe baseline:
 
