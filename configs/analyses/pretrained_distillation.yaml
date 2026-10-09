@@ -1,0 +1,62 @@
+name: phase5_5_imagenet_distillation
+output_dir: results/phase5_5_pretrained_distillation
+cache_dir: results/foundation_feature_cache
+feature_mode: cached
+data:
+  root: data
+  manifest: data/company/manifest.csv
+  splits_dir: configs/splits/company
+  num_classes: 2
+  ignore_index: 255
+  image_size: [416, 640]
+  mask_value_map: {0: 0, 1: 1, 255: 255}
+folds: [1, 2, 3, 4, 5]
+seeds: [42]
+students: [pidnet_s, mobilenet_v3_lraspp]
+student_weights:
+  pidnet_s: checkpoints/imagenet/pidnet_s_fm2edge.pt
+  mobilenet_v3_lraspp: checkpoints/imagenet/mobilenet_v3_large_fm2edge.pt
+teachers:
+  dinov2:
+    family: dinov2
+    variant: vits14
+    repository_path: external/dinov2
+    weights_path: checkpoints/dinov2_vits14_pretrain.pth
+    initialization: pretrained
+    feature_layers: 4
+    head: linear
+  dinov3:
+    family: dinov3
+    variant: vits16
+    repository_path: external/dinov3
+    weights_path: checkpoints/dinov3_vits16_pretrain_lvd1689m.pth
+    initialization: pretrained
+    feature_layers: 4
+    head: linear
+methods:
+  none: {}
+  mgd: {weight: 1.0, mask_ratio: 0.5}
+  heteroakd: {weight: 1.0, temperature: 4.0, warmup_epochs: 5, logit_weight: 1.0}
+  gkd_cnn_source_only:
+    weight: 1.0
+    representation_epochs: 25
+    task_epochs: 25
+    max_tokens: 512
+    freeze_representation: true
+training:
+  epochs: 50
+  batch_size: 4
+  num_workers: 4
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  dice_weight: 1.0
+  amp: true
+  seed: 42
+  device: cuda
+  gradient_accumulation: 1
+  early_stopping_patience: 10
+  early_stopping_min_delta: 0.001
+probe_training:
+  batch_size: 2
+  keep_last_checkpoint: false
+  lightweight_best_checkpoint: true
