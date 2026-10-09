@@ -1,5 +1,7 @@
 # KD implementations and deliberate adaptations
 
+Japanese meeting slides: [three illustrated KD methods](assets/knowledge_distillation/README.md).
+
 These objectives are implemented locally from published mathematical descriptions.
 No external KD repository source code is vendored. Historical model code and licenses
 remain unchanged. This is not a claim of reproducing the papers' benchmark numbers.
